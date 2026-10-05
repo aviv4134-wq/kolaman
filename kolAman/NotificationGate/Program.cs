@@ -8,8 +8,11 @@ using Confluent.Kafka;
 using DotNetEnv;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using NotificationGate.Models;
 using Serilog;
 using System.Collections.ObjectModel;
+using System.Runtime.InteropServices;
+using System.Text.Json;
 
 namespace NotificationGate
 {
@@ -38,6 +41,8 @@ namespace NotificationGate
 
             using var watcher = new FileSystemWatcher(path);
 
+            watcher.InternalBufferSize = 65536;
+
             watcher.NotifyFilter = NotifyFilters.Attributes
                                  | NotifyFilters.CreationTime
                                  | NotifyFilters.DirectoryName
@@ -64,9 +69,9 @@ namespace NotificationGate
 
         
 
-        private static void OnCreated(object sender, FileSystemEventArgs e)
+        private static async void OnCreated(object sender, FileSystemEventArgs e)
         {
-            FindAlertJson(e);
+            await FindAlertJson(e);
         }
 
 
@@ -83,9 +88,11 @@ namespace NotificationGate
                 string fileNameAlertJson = string.Join("\\", fileName);
                 string fullPathAlertjson = Path.Combine("../../../../../", "alert-simulator", fileNameAlertJson);
 
-                string rawAlert  = File.ReadAllText(fullPathAlertjson);
+                string rawAlertStr  = File.ReadAllText(fullPathAlertjson);
 
-                await SendAlertToKafka(rawAlert);
+             
+                
+                await SendAlertToKafka(rawAlertStr);
                 return;
 
                 
@@ -118,7 +125,7 @@ namespace NotificationGate
 
                 await producer.ProduceAsync("rawAlerts", new Message<Null, string> { Key = null, Value = rawAlert });
 
-                producer.Flush(TimeSpan.FromSeconds(3));
+                producer.Flush(TimeSpan.FromSeconds(2));
 
             }
             catch (Exception ex)
