@@ -6,17 +6,17 @@ from datetime import datetime
 
 
 def validate_alert(raw_alert):
-    if  is_all_fields_exsits(raw_alert):
+    if  is_all_fields_exsits(raw_alert) == False:
          return False
     
-    if is_fields_empty(raw_alert):
+    if is_fields_empty(raw_alert) == False:
         return False
+    raw_alert = {'alert_id': 'a09d9b15-3a6b-4a4e-b2c8-fe33884c7fee', 'source': 'aman', 'title': 'זוהו הכנות לשיגור', 'content': 'זוהו הכנות לשיגור באזור בצרה, עיראק. זוהו 7 משגרים בשטח.', 'priority': 'HIGH', 'classification': 'SECRET', 'lat': 30.5062, 'lon': 47.7854, 'timestamp': '2026-10-05T13:04:40.666Z', 'status': 'WAITING'}
     source = raw_alert["source"]
     priority = raw_alert["priority"]
-    raw_alert = raw_alert["title"]
+    title = raw_alert["title"]
     status = raw_alert["status"]
     lat,lon = raw_alert["lat"],raw_alert["lon"]
-    title = raw_alert["title"]
     classification = raw_alert["classification"]
     timestamp = raw_alert["timestamp"]
     
