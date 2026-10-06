@@ -116,16 +116,32 @@ namespace NotificationGate
                 string fileNameAlertJson = string.Join("\\", fileName);
                 string fullPathAlertjson = Path.Combine("../../../../../", "alert-simulator", fileNameAlertJson);
 
-                string rawAlertStr  = File.ReadAllText(fullPathAlertjson);
+                if (File.Exists(fullPathAlertjson))
+                {
+                    string rawAlertStr = File.ReadAllText(fullPathAlertjson);
+                    await SendAlertToKafka(rawAlertStr);
 
-             
-                
-                await SendAlertToKafka(rawAlertStr);
+                }
+                else
+                {
+                    
+                    fileName.RemoveAt(fileFinishNameIndex);
+                    fileName.Add("alert.txt");
+                    string fileNameAlerttxt = string.Join("\\", fileName);
+                    string fullPathAlerttxt = Path.Combine("../../../../../", "alert-simulator", fileNameAlerttxt);
+                    if (File.Exists(fullPathAlerttxt))
+                    {
+                        string rawAlertStr = File.ReadAllText(fullPathAlertjson);
+                        await SendAlertToKafka(rawAlertStr);
+                    }
+                }
+
+
                 return;
 
                 
             }
-            catch (FileNotFoundException ex)
+            catch (Exception ex)
             {
                 Log.Error("the json file not exisits");
                 return;
