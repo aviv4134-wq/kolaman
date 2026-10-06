@@ -1,3 +1,5 @@
 <Solution>
+  <Project Path="AlertMangment/AlertMangment.csproj" />
+  <Project Path="AlertNevigation/AlertNevigation.csproj" />
   <Project Path="NotificationGate/NotificationGate.csproj" />
 </Solution>
