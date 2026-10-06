@@ -2,15 +2,21 @@ from confluent_kafka import Consumer
 import os
 from dotenv import load_dotenv,find_dotenv
 
+
 load_dotenv(find_dotenv())
+
+
+
 
 kafka_boot_strap = os.getenv("BOOTSTRAP_SERVERS_KAFKA")
 
 
 config = {
         'bootstrap.servers': kafka_boot_strap,
-        'group.id':  'afdlfghfddhdhhhdvdlh',
-        'auto.offset.reset': 'earliest'
+        'group.id':  'aa',
+        'auto.offset.reset': 'earliest',
+        'enable.auto.commit': 'false',
+
         
     }
 
@@ -32,6 +38,11 @@ def Consume_raw_alerts_topic():
         return None
     return  msg.value()
 
+def Commit_consumer():
+    consumer.commit()
+
+def Consumer_close():
+    consumer.close()
     
 
 
