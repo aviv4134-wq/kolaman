@@ -69,12 +69,12 @@ namespace AlertNevigation
                             DateTime startProcessing = DateTime.UtcNow;
                             alert.Status = "INPROGRESS";
                             
-                            await Task.Delay(10);
+                            await Task.Delay(TimeSpan.FromSeconds(10));
                             
                             alert.Status = "DONE";
                             var endProcessingTime = DateTime.UtcNow - startProcessing;
                             
-                            Log.Information($"proceess time {endProcessingTime.Seconds}");
+                            Log.Information($"proceess time takes {endProcessingTime.Seconds} seconds");
                         }
                         else
                         {
@@ -94,7 +94,7 @@ namespace AlertNevigation
 
 
                 }
-                await Task.Delay(60);
+                await Task.Delay(TimeSpan.FromSeconds(10));
             }
 
 
