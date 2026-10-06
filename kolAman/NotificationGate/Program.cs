@@ -13,12 +13,16 @@ using Serilog;
 using System.Collections.ObjectModel;
 using System.Runtime.InteropServices;
 using System.Text.Json;
+using static Confluent.Kafka.ConfigPropertyNames;
 
 namespace NotificationGate
 {
 
     class Program
     {
+
+        private static IProducer<Null, string> _producer;
+
 
         static void Main()
         {
@@ -31,39 +35,70 @@ namespace NotificationGate
             .ReadFrom.Configuration(builder)
             .CreateLogger();
 
-            Env.TraversePath().Load();
-
             Log.Information("starting notofocation gate service");
 
-            string path = Path.Combine("../../../../../","alert-simulator");
+
+
+            Env.TraversePath().Load();
+
+            try
+            {
+
+
+                string kafkaBootServer = (Environment.GetEnvironmentVariable("BOOTSTRAP_SERVERS_KAFKA")!);
+
+                var config = new ProducerConfig
+                {
+                    BootstrapServers = kafkaBootServer
+
+                };
+
+                _producer = new ProducerBuilder<Null, string>(config).Build();
+
+                Log.Information("create kafka producer");
 
 
 
-            using var watcher = new FileSystemWatcher(path);
+                string path = Path.Combine("../../../../../", "alert-simulator");
 
-            watcher.InternalBufferSize = 65536;
+                using var watcher = new FileSystemWatcher(path);
 
-            watcher.NotifyFilter = NotifyFilters.Attributes
-                                 | NotifyFilters.CreationTime
-                                 | NotifyFilters.DirectoryName
-                                 | NotifyFilters.FileName
-                                 | NotifyFilters.LastAccess
-                                 | NotifyFilters.LastWrite
-                                 | NotifyFilters.Security
-                                 | NotifyFilters.Size;
+                watcher.InternalBufferSize = 65536;
 
-            watcher.Created += OnCreated;
+                watcher.NotifyFilter = NotifyFilters.Attributes
+                                     | NotifyFilters.CreationTime
+                                     | NotifyFilters.DirectoryName
+                                     | NotifyFilters.FileName
+                                     | NotifyFilters.LastAccess
+                                     | NotifyFilters.LastWrite
+                                     | NotifyFilters.Security
+                                     | NotifyFilters.Size;
 
-          
+                Log.Information("start filewatcher loop");
+
+                watcher.Created += OnCreated;
 
 
-            watcher.Filter = "alert.ready";
-           
-            watcher.IncludeSubdirectories = true;
-            watcher.EnableRaisingEvents = true;
 
-            Console.WriteLine("Press enter to exit.");
-            Console.ReadLine();
+
+                watcher.Filter = "alert.ready";
+
+                watcher.IncludeSubdirectories = true;
+                watcher.EnableRaisingEvents = true;
+
+                Console.WriteLine("Press enter to exit.");
+                Console.ReadLine();
+            }
+            catch (Exception  ex)
+            {
+                Log.Error(ex.Message);
+                
+            }
+            finally
+            {
+                _producer.Flush();
+                _producer.Dispose();
+            }
         }
 
 
@@ -113,24 +148,13 @@ namespace NotificationGate
         {
             try
             {
-                string kafkaBootServer = (Environment.GetEnvironmentVariable("BOOTSTRAP_SERVERS_KAFKA")!);
-
-                var config = new ProducerConfig
-                {
-                    BootstrapServers = kafkaBootServer
-
-                };
-
-                var producer = new ProducerBuilder<Null, string>(config).Build();
-
-                await producer.ProduceAsync("rawAlerts", new Message<Null, string> { Key = null, Value = rawAlert });
-
-                producer.Flush(TimeSpan.FromSeconds(2));
+                await _producer.ProduceAsync("rawAlerts", new Message<Null, string> { Key = null, Value = rawAlert });
 
             }
             catch (Exception ex)
             {
                 Log.Error(ex.Message);
+                return;
             }
         }
 
