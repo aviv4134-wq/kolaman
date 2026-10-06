@@ -1,6 +1,7 @@
 from confluent_kafka import Consumer
 import os
 from dotenv import load_dotenv,find_dotenv
+from loggers.logger import logger
 
 
 load_dotenv(find_dotenv())
@@ -28,13 +29,14 @@ consumer.subscribe([topic])
 
 def Consume_raw_alerts_topic():
     msg = consumer.poll(2.0)
-    if msg is None:       
-        print("Waiting...")
+    if msg is None: 
+        logger.debug("there is no new alerts from kafka")
         return None
     elif msg.error():
-        print("ERROR: %s".format(msg.error()))
+        logger.error( "ERROR: %s".format(msg.error()))
         return None
     if msg.value() == None:
+        logger.debug("there is no new alerts from kafka")
         return None
     return  msg.value()
 
