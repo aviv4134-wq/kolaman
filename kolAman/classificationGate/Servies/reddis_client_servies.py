@@ -21,7 +21,7 @@ def check_if_already_exstis(raw_alert):
     return False
 
 def save_raw_alert(raw_alert):
-    redis_client.set( raw_alert["alert_id"],json.dumps(raw_alert),ex= 43423)
+    redis_client.set( raw_alert["alert_id"],json.dumps(raw_alert),ex=1200)
 
 
 def close_client():
