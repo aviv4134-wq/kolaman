@@ -14,7 +14,7 @@ kafka_boot_strap = os.getenv("BOOTSTRAP_SERVERS_KAFKA")
 
 config = {
         'bootstrap.servers': kafka_boot_strap,
-        'group.id':  'aa',
+        'group.id':  'aaaaaa',
         'auto.offset.reset': 'earliest',
         'enable.auto.commit': 'false',
 
