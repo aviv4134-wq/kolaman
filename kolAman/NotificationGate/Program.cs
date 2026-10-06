@@ -1,14 +1,7 @@
-﻿
-
-
-
-
-
-using Confluent.Kafka;
+﻿using Confluent.Kafka;
 using DotNetEnv;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using NotificationGate.Models;
 using Serilog;
 using System.Collections.ObjectModel;
 using System.Runtime.InteropServices;
